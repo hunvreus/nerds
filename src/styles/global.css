@@ -1,0 +1,37 @@
+:root { --bg:#151516; --text:#c8c8c5; --important:#f5f5f3; --muted:#747477; --green:#8cff66; }
+* { box-sizing:border-box; }
+::selection { background:var(--green); color:var(--bg); }
+body { margin:0; padding:40px; background:var(--bg); color:var(--text); font-family:"JetBrains Mono Variable",monospace; font-size:12px; line-height:20px; text-align:left; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+main { width:min(100%,78ch); margin:0; }
+a { color:inherit; text-decoration-line:underline; text-decoration-style:dotted; text-underline-offset:3px; }
+a:hover { color:var(--important); }
+.logo { margin:0 0 40px; color:var(--important); font:500 14px/20px "JetBrains Mono Variable",monospace; white-space:pre; }
+section { margin:0 0 40px; }
+section > :last-child { margin-bottom:0; }
+h1 { margin:0 0 20px; color:var(--important); font-size:12px; font-weight:500; }
+h1 span { color:var(--muted); font-weight:400; }
+p { margin:0 0 16px; }
+form { margin-top:28px; }
+.fields { display:grid; gap:16px; }
+.field { display:grid; gap:6px; }
+label { color:var(--text); font-size:12px; }
+label span { color:var(--muted); }
+input,textarea { width:100%; min-height:34px; padding:6px 8px; border:1px solid var(--muted); border-radius:0; outline:0; background:transparent; color:var(--text); font:inherit; caret-color:var(--important); }
+textarea { field-sizing:content; min-height:34px; max-height:200px; resize:none; }
+input::placeholder,textarea::placeholder { color:var(--muted); opacity:1; }
+input:focus,textarea:focus { border-color:var(--important); outline:1px solid var(--important); outline-offset:3px; }
+input:disabled,textarea:disabled { opacity:.45; cursor:wait; }
+button { min-height:34px; margin:20px 0 10px; padding:6px 12px; border:1px solid var(--important); border-radius:0; background:var(--important); color:var(--bg); font:500 12px/20px "JetBrains Mono Variable",monospace; text-align:left; cursor:pointer; }
+button:hover { background:transparent; color:var(--important); }
+button:focus-visible { outline:1px solid var(--important); outline-offset:3px; }
+button:disabled { color:var(--muted); cursor:wait; }
+small { display:block; color:var(--muted); font-size:10px; }
+.status:not(:empty) { margin-top:10px; color:var(--text); font-size:12px; }
+small:empty { display:none; }
+ul { margin:0; padding:0; list-style:none; }
+li::before { content:"- "; color:var(--muted); }
+footer { padding-top:0; color:var(--muted); font-size:12px; }
+footer a { color:inherit; }
+@media (max-width:560px) {
+  body { padding:24px 18px; }
+}
