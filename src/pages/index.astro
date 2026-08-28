@@ -4,7 +4,6 @@ import "../styles/global.css";
 
 const title = "NERDS — Singapore";
 const description = "A community for curious, ambitious nerds in Singapore.";
-const formAction = "https://docs.google.com/forms/d/e/1FAIpQLScJ7ZLNlhl7tMkQZ1X3L4myWc255r9NSn9aQUvqtXeIUEAxUA/formResponse";
 ---
 
 <!doctype html>
@@ -37,16 +36,13 @@ const formAction = "https://docs.google.com/forms/d/e/1FAIpQLScJ7ZLNlhl7tMkQZ1X3
         <h1><span>#</span> JOIN US</h1>
         <p>Tell us a little about yourself. We’ll use this to invite people to upcoming NERDS gatherings.</p>
 
-        <form id="join-form" action={formAction} method="post">
-          <input type="hidden" name="fvv" value="1" />
-          <input type="hidden" name="pageHistory" value="0" />
-
+        <form id="join-form" action="/api/join" method="post">
           <div class="fields">
-            <div class="field"><label for="name">FULL NAME <span>(REQUIRED)</span></label><input id="name" name="entry.1664089668" type="text" autocomplete="name" required /></div>
-            <div class="field"><label for="email">EMAIL <span>(REQUIRED)</span></label><input id="email" name="entry.2126035526" type="email" autocomplete="email" required /></div>
-            <div class="field"><label for="social">SOCIAL</label><textarea id="social" name="entry.747648027" rows="1" inputmode="url" placeholder="X, LinkedIn, personal site, etc."></textarea></div>
-            <div class="field"><label for="background">BACKGROUND <span>(REQUIRED)</span></label><textarea id="background" name="entry.705353409" rows="1" placeholder="Who you are, what you’ve done..." required></textarea></div>
-            <div class="field"><label for="interests">INTERESTS <span>(REQUIRED)</span></label><textarea id="interests" name="entry.970253744" rows="1" placeholder="What can you talk about for an unreasonable amount of time?" required></textarea></div>
+            <div class="field"><label for="name">FULL NAME <span>(REQUIRED)</span></label><input id="name" name="name" type="text" autocomplete="name" required /></div>
+            <div class="field"><label for="email">EMAIL <span>(REQUIRED)</span></label><input id="email" name="email" type="email" autocomplete="email" required /></div>
+            <div class="field"><label for="social">SOCIAL</label><textarea id="social" name="social" rows="1" inputmode="url" placeholder="https://x.com/..., LinkedIn URL, etc."></textarea></div>
+            <div class="field"><label for="background">BACKGROUND <span>(REQUIRED)</span></label><textarea id="background" name="background" rows="1" placeholder="Who you are, what you’ve done..." required></textarea></div>
+            <div class="field"><label for="interests">INTERESTS <span>(REQUIRED)</span></label><textarea id="interests" name="interests" rows="1" placeholder="What can you talk about for an unreasonable amount of time?" required></textarea></div>
           </div>
 
           <button type="submit">SUBMIT</button>
@@ -89,13 +85,20 @@ const formAction = "https://docs.google.com/forms/d/e/1FAIpQLScJ7ZLNlhl7tMkQZ1X3
 
         try {
           await Promise.all([
-            fetch(form.action, { method: "POST", body: data, mode: "no-cors" }),
+            fetch(form.action, { method: "POST", body: data }).then(async (response) => {
+              if (response.ok) return;
+              const result = await response.json().catch(() => null);
+              const message = result && typeof result === "object" && "error" in result && typeof result.error === "string"
+                ? result.error
+                : "Could not submit the form";
+              throw new Error(message);
+            }),
             new Promise((resolve) => window.setTimeout(resolve, 900)),
           ]);
           form.reset();
           status.textContent = "THANK YOU. YOU'RE ON THE LIST.";
-        } catch {
-          status.textContent = "FAILED TO SEND. TRY AGAIN.";
+        } catch (error) {
+          status.textContent = error instanceof Error ? `${error.message.toUpperCase()}.` : "FAILED TO SEND. TRY AGAIN.";
         } finally {
           button.textContent = "SUBMIT";
           button.removeAttribute("aria-busy");
