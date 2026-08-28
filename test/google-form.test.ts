@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { extractHiddenFields, parseSubmission, SubmissionError } from "../src/server/google-form.ts";
+import { extractHiddenFields, parseSubmission } from "../src/server/google-form.ts";
 
 test("extracts Google Forms submission metadata", () => {
   const html = [
@@ -33,7 +33,7 @@ test("normalizes a valid submission", () => {
   });
 });
 
-test("rejects a bare social handle before Google does", () => {
+test("accepts free-form social details", () => {
   const data = new FormData();
   data.set("name", "Ronan");
   data.set("email", "ronan@example.com");
@@ -41,5 +41,5 @@ test("rejects a bare social handle before Google does", () => {
   data.set("background", "Builder");
   data.set("interests", "Computers");
 
-  assert.throws(() => parseSubmission(data), (error) => error instanceof SubmissionError && error.status === 422);
+  assert.equal(parseSubmission(data).social, "@hunvreus");
 });

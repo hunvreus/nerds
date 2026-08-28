@@ -49,14 +49,6 @@ export function parseSubmission(data: FormData): JoinSubmission {
     throw new SubmissionError("Complete every required field", 422);
   }
   if (!/^\S+@\S+\.\S+$/.test(submission.email)) throw new SubmissionError("Enter a valid email", 422);
-  if (submission.social) {
-    try {
-      const social = new URL(submission.social);
-      if (social.protocol !== "https:" && social.protocol !== "http:") throw new Error();
-    } catch {
-      throw new SubmissionError("Enter a full URL for social", 422);
-    }
-  }
   return submission;
 }
 
