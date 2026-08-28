@@ -1,8 +1,8 @@
-import { parseSubmission, SubmissionError, submitToGoogleForm } from "../../src/server/google-form";
+import { parseSubmission, SubmissionError, submitToGoogleForm } from "./google-form";
 
-export async function onRequestPost(context: { request: Request }): Promise<Response> {
+export async function handleJoin(request: Request): Promise<Response> {
   try {
-    const submission = parseSubmission(await context.request.formData());
+    const submission = parseSubmission(await request.formData());
     await submitToGoogleForm(submission);
     return Response.json({ ok: true }, { headers: { "cache-control": "no-store" } });
   } catch (error) {
