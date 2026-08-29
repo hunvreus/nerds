@@ -3,7 +3,9 @@ import "@fontsource-variable/jetbrains-mono";
 import "../styles/global.css";
 
 const title = "NERDS — Singapore";
-const description = "A community for curious, ambitious nerds in Singapore.";
+const description = "A Singapore community for curious, ambitious nerds—founders, technologists, researchers, builders, open-source contributors, and people obsessed with their craft.";
+const canonical = "https://nerds.sg/";
+const socialImage = `${canonical}og.png`;
 ---
 
 <!doctype html>
@@ -12,14 +14,26 @@ const description = "A community for curious, ambitious nerds in Singapore.";
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    <meta name="author" content="Ronan Berder" />
+    <meta name="robots" content="index, follow" />
     <meta name="theme-color" content="#151516" />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content="NERDS" />
+    <meta property="og:locale" content="en_SG" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content="https://nerds.sg/og.png" />
+    <meta property="og:image" content={socialImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="NERDS — a community for curious, ambitious nerds in Singapore" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content="https://nerds.sg/og.png" />
+    <meta name="twitter:image" content={socialImage} />
+    <meta name="twitter:image:alt" content="NERDS — a community for curious, ambitious nerds in Singapore" />
+    <meta name="twitter:creator" content="@hunvreus" />
     <title>{title}</title>
   </head>
   <body>
