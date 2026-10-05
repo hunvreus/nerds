@@ -1,6 +1,8 @@
 const formId = "1FAIpQLScJ7ZLNlhl7tMkQZ1X3L4myWc255r9NSn9aQUvqtXeIUEAxUA";
 const formBase = `https://docs.google.com/forms/d/e/${formId}`;
 const maxGooglePageBytes = 512_000;
+const loadRetryDelays = [200, 800];
+const retryableStatuses = new Set([408, 425, 429, 500, 502, 503, 504]);
 
 const entries = {
   name: "entry.1664089668",
@@ -16,6 +18,11 @@ export interface JoinSubmission {
   social: string;
   background: string;
   interests: string;
+}
+
+interface SubmitOptions {
+  fetcher?: typeof fetch;
+  wait?: (milliseconds: number) => Promise<void>;
 }
 
 export class SubmissionError extends Error {
@@ -95,16 +102,39 @@ async function readBoundedText(response: Response): Promise<string> {
   return text + decoder.decode();
 }
 
-export async function submitToGoogleForm(submission: JoinSubmission): Promise<void> {
-  const viewResponse = await fetch(`${formBase}/viewform`, {
-    headers: { accept: "text/html" },
-  });
-  if (!viewResponse.ok) throw new SubmissionError("Could not load Google form", 502);
+async function loadGoogleForm(fetcher: typeof fetch, wait: SubmitOptions["wait"]): Promise<Response> {
+  for (let attempt = 0; attempt <= loadRetryDelays.length; attempt += 1) {
+    try {
+      const response = await fetcher(`${formBase}/viewform`, { headers: { accept: "text/html" } });
+      if (response.ok) return response;
+
+      const canRetry = retryableStatuses.has(response.status) && attempt < loadRetryDelays.length;
+      console.warn(JSON.stringify({ event: "google_form_load_failed", attempt: attempt + 1, status: response.status, retrying: canRetry }));
+      if (!canRetry) throw new SubmissionError("Could not load Google form", 502);
+      await response.body?.cancel();
+    } catch (error) {
+      if (error instanceof SubmissionError) throw error;
+      if (attempt >= loadRetryDelays.length) {
+        console.warn(JSON.stringify({ event: "google_form_load_failed", attempt: attempt + 1, status: null, retrying: false }));
+        throw new SubmissionError("Could not load Google form", 502);
+      }
+      console.warn(JSON.stringify({ event: "google_form_load_failed", attempt: attempt + 1, status: null, retrying: true }));
+    }
+
+    await (wait ?? ((milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds))))(loadRetryDelays[attempt]);
+  }
+
+  throw new SubmissionError("Could not load Google form", 502);
+}
+
+export async function submitToGoogleForm(submission: JoinSubmission, options: SubmitOptions = {}): Promise<void> {
+  const fetcher = options.fetcher ?? fetch;
+  const viewResponse = await loadGoogleForm(fetcher, options.wait);
 
   const fields = extractHiddenFields(await readBoundedText(viewResponse));
   for (const [key, entry] of Object.entries(entries)) fields.set(entry, submission[key as keyof JoinSubmission]);
 
-  const response = await fetch(`${formBase}/formResponse`, {
+  const response = await fetcher(`${formBase}/formResponse`, {
     method: "POST",
     headers: {
       "content-type": "application/x-www-form-urlencoded;charset=UTF-8",
